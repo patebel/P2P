@@ -1,37 +1,72 @@
 package vs;
 
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class P2PNode implements IP2PNode {
+public class P2PNode extends TimerTask implements IP2PNode {
+
+	public Timer timer;
+	public Integer ID;
+	public IP2PNode Predecessor;
+	public IP2PNode Successor;
+
+	public P2PNode() {
+		timer = new Timer(true);
+		timer.schedule(this, 1000, 1000);
+		ID = setID();
+	}
+
+	private Integer setID() {
+		Random r = new Random();
+		Integer ID = r.ints(0, (int) 4294967295L).limit(1).findFirst().getAsInt();
+		return ID;
+	}
 
 	@Override
 	public IP2PNode findSuccessor(long id) {
-		// TODO Auto-generated method stub
+		if ID in (this.ID, Successor.ID);
+		return Successor;
+		else
+		nprime = closest_preceding_node(id);
+			return nprime.find_successor(id);
 		return null;
 	}
 
 	@Override
 	public IP2PNode getPredecessor() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return this.Predecessor;
 	}
 
 	@Override
 	public IP2PNode getSuccessor() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return this.Successor;
 	}
 
 	@Override
 	public void notify(IP2PNode newPredecessor) {
-		// TODO Auto-generated method stub
 		
+			if (this.ID < this.Predecessor.getID()){
+				if ((newPredecessor.getID()>this.Predecessor.getID()) || (newPredecessor.getID()<this.ID)){
+					this.Predecessor = newPredecessor;
+				}
+			}
+			else if ((newPredecessor.getID()>this.Predecessor.getID()) && (newPredecessor.getID()<this.ID)){
+				this.Predecessor = newPredecessor;
+			}
+			else if (this.Predecessor==null){
+				this.Predecessor = newPredecessor;
+			}
+
 	}
 
 	@Override
 	public long getID() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return this.ID;
 	}
 
 	@Override
@@ -58,4 +93,32 @@ public class P2PNode implements IP2PNode {
 		return null;
 	}
 
+	private void fix_fingers() {
+		
+		
+
+	}
+
+	private void stabilze() {
+	IP2PNode n = this.Successor.getPredecessor();
+	if (this.Successor.getID()<this.ID){
+		if ((n.getID()<this.Successor.getID()) || (n.getID()>this.ID)){
+			this.Successor = n;
+		}
+	}
+	else if ((n.getID()<this.Successor.getID()) && (n.getID()>this.ID)){
+		this.Successor = n;
+	}
+	this.Successor.notify(this);	
+	}
+
+	/*
+	 * Periodische Methoden
+	 */
+	@Override
+	public void run() {
+		this.stabilze();
+		this.fix_fingers();
+
+	}
 }
