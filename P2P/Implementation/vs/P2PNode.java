@@ -9,13 +9,30 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	public Timer timer;
 	public Integer ID;
-	public IP2PNode Predecessor;
-	public IP2PNode Successor;
+	public IP2PNode Predecessor = null;
+	public IP2PNode Successor = null;
+	IP2PNode fingertable []; 
 
 	public P2PNode() {
 		timer = new Timer(true);
 		timer.schedule(this, 1000, 1000);
 		ID = setID();
+	}
+	
+	private void join(){
+		IP2PNode b = Environment.getBootstrapNode();
+		IP2PNode s = b.findSuccessor(this.ID);
+		build_fingers(s);		
+	}
+
+	private void build_fingers(IP2PNode s) {
+		int i_zero = (int) Math.floo((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
+		for (int i=0; i < i_zero; i++){
+			fingertable[i]=this.getSuccessor();
+		}
+			
+		for (int i = i_zero; )
+		
 	}
 
 	private Integer setID() {
@@ -30,7 +47,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		return Successor;
 		else
 		nprime = closest_preceding_node(id);
-			return nprime.find_successor(id);
+		return nprime.find_successor(id);
 		return null;
 	}
 
