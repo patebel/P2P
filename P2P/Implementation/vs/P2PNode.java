@@ -26,12 +26,14 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	}
 
 	private void build_fingers(IP2PNode s) {
-		int i_zero = (int) Math.floo((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
+		int i_zero = (int) Math.floor((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
 		for (int i=0; i < i_zero; i++){
-			fingertable[i]=this.getSuccessor();
+			fingertable[i]=s;
 		}
 			
-		for (int i = i_zero; )
+		for (int i = i_zero; i <= 32; i++){
+			fingertable[i] = s.findSuccessor((long) (this.getID() + Math.pow(2, i-1)));
+		}
 		
 	}
 
