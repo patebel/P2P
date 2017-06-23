@@ -47,12 +47,25 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	@Override
 	public IP2PNode findSuccessor(long id) {
-		if ID in (this.ID, Successor.ID);
-		return Successor;
-		else
-		nprime = closest_preceding_node(id);
-		return nprime.find_successor(id);
-		return null;
+		if ((this.ID > this.Successor.getID()) && ((id>this.ID) || (id<Successor.getID()))){
+				return Successor;
+		}
+		else if ((id>this.ID) && (id<Successor.getID())){
+			return Successor;
+		}
+		else {
+			IP2PNode n_prime = closest_preceding_node(id);
+			return n_prime.findSuccessor(id);
+		}
+	}
+	
+	public IP2PNode closest_preceding_node(long id){
+		for(int i=32; i==1; i--){
+			if (this.ID<fingertable[i].getID() && id>fingertable[i].getID()){
+				return fingertable[i];
+			}
+		}
+		return this;
 	}
 
 	@Override
@@ -141,6 +154,5 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	public void run() {
 		this.stabilze();
 		this.fix_fingers();
-
 	}
 }
