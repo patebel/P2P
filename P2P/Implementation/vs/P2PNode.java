@@ -9,7 +9,7 @@ import java.util.TimerTask;
 public class P2PNode extends TimerTask implements IP2PNode {
 
 	public Timer timer;
-	public int ID;
+	public long ID;
 	public IP2PNode Predecessor = null;
 	public IP2PNode Successor = null;
 	IP2PNode fingertable []; 
@@ -118,9 +118,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		next += 1;
 		if (next > 32){next=1;}
 		
-		fingertable[next]=findSuccessor((long) (this.ID + pow(2, next-1)));
-		
-
+		fingertable[next]=findSuccessor((long) (this.ID + Math.pow(2, next-1)));
 	}
 
 	private void stabilze() {
