@@ -1,5 +1,6 @@
 package vs;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Timer;
@@ -90,8 +91,8 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	@Override
 	public Iterator<IP2PNode> getFingers() {
-		// TODO Auto-generated method stub
-		return null;
+		Iterator<IP2PNode> Fingers = Arrays.asList(fingertable).iterator();
+		return Fingers;
 	}
 
 	@Override
