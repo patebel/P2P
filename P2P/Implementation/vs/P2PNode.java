@@ -12,40 +12,43 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	public long ID;
 	public IP2PNode Predecessor = null;
 	public IP2PNode Successor = null;
-	IP2PNode fingertable [] = null; 
-	int next = 0;	
+	IP2PNode fingertable []; 
+	int next = 0;
+	boolean bootcomp = false;
 
 	public P2PNode() {
 		ID = setID();
-		join();
+		bootcomp = true;
 		timer = new Timer(true);
 		timer.schedule(this, 1000, 1000);
 	}
 	
 	private void join(){
 		IP2PNode b = Environment.getBootstrapNode();
-		if (b!=null){
-			IP2PNode s = b.findSuccessor(this.getID());
-			build_fingers(s);
-			Successor = s;
-		}
-		else{
+		if(b.getID()==this.getID()){
 			Successor = this;
 			Predecessor = this;
-			build_fingers(this);
+			for (int i = 0; i <= 32; i++){
+				fingertable[i] = this;
+			}
+		}
+		else if (b!=null){
+			IP2PNode s = b.findSuccessor(this.getID());
+			Successor = s;
+			build_fingers(s);
 		}
 	}
 
 	private void build_fingers(IP2PNode s) {
-		int i_zero = (int) Math.floor((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
-		for (int i=0; i < i_zero; i++){
-			fingertable[i]=s;
-		}
-			
-		for (int i = i_zero; i <= 32; i++){
-			fingertable[i] = s.findSuccessor((long) (this.getID() + Math.pow(2, i-1)));
-		}
-		
+			int i_zero = (int) Math.floor((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
+			for (int i=0; i < i_zero; i++){
+				fingertable[i]=s;
+			}
+				
+			for (int i = i_zero; i <= 32; i++){
+				long nextID = this.getID() + (long) Math.pow(2, i-1);
+				fingertable[i] = s.findSuccessor(nextID);
+			}
 	}
 
 	private long setID() {
@@ -57,13 +60,20 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	@Override
 	public IP2PNode findSuccessor(long id) {
-		if ((this.getID() > this.Successor.getID()) && ((id>this.getID()) || (id<Successor.getID()))){
+		if (this.getID() > this.Successor.getID()){
+			if ((id>this.getID()) || (id<Successor.getID())){
 				return Successor;
+			}
+			else{
+				IP2PNode n_prime = closest_preceding_node(id);
+				IP2PNode NN = n_prime.findSuccessor(id);
+				return NN;
+			}
 		}
 		else if ((id>this.getID()) && (id<Successor.getID())){
 			return Successor;
 		}
-		else if (id == this.getID()){
+		else if (this.Successor.getID() == this.getID()){
 			return this;
 		}
 		else {
@@ -166,9 +176,14 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	 */
 	@Override
 	public void run() {
-		if (Environment.getBootstrapNode() != null){
+		if (bootcomp==true){
+			join();
+			bootcomp=false;
+		}
+		else{
 			this.stabilze();
 			this.fix_fingers();
 		}
+		
 	}
 }
