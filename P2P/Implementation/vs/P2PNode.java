@@ -12,7 +12,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	public long ID;
 	public IP2PNode Predecessor = null;
 	public IP2PNode Successor = null;
-	IP2PNode fingertable []; 
+	IP2PNode fingertable[] = new IP2PNode[32]; 
 	int next = 0;
 	boolean bootcomp = false;
 
@@ -28,8 +28,8 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		if(b.getID()==this.getID()){
 			Successor = this;
 			Predecessor = this;
-			for (int i = 0; i <= 32; i++){
-				fingertable[i] = this;
+			for (int i = 0; i <= 31; i++){
+				this.fingertable[i] = this;
 			}
 		}
 		else if (b!=null){
@@ -42,12 +42,12 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	private void build_fingers(IP2PNode s) {
 			int i_zero = (int) Math.floor((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
 			for (int i=0; i < i_zero; i++){
-				fingertable[i]=s;
+				this.fingertable[i]=s;
 			}
 				
 			for (int i = i_zero; i <= 32; i++){
 				long nextID = this.getID() + (long) Math.pow(2, i-1);
-				fingertable[i] = s.findSuccessor(nextID);
+				this.fingertable[i] = s.findSuccessor(nextID);
 			}
 	}
 
@@ -85,8 +85,8 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	
 	public IP2PNode closest_preceding_node(long id){
 		for(int i=32; i==1; i--){
-			if (this.getID()<fingertable[i].getID() && id>fingertable[i].getID()){
-				return fingertable[i];
+			if (this.getID()<this.fingertable[i].getID() && id>this.fingertable[i].getID()){
+				return this.fingertable[i];
 			}
 		}
 		return this;
@@ -129,7 +129,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	@Override
 	public Iterator<IP2PNode> getFingers() {
-		Iterator<IP2PNode> Fingers = Arrays.asList(fingertable).iterator();
+		Iterator<IP2PNode> Fingers = Arrays.asList(this.fingertable).iterator();
 		return Fingers;
 	}
 
@@ -155,7 +155,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		next += 1;
 		if (next > 32){next=1;}
 		
-		fingertable[next]=findSuccessor((long) (this.getID() + Math.pow(2, next-1)));
+		this.fingertable[next]=findSuccessor((long) (this.getID() + Math.pow(2, next-1)));
 	}
 
 	private void stabilze() {
