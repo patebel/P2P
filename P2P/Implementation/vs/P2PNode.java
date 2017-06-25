@@ -27,7 +27,6 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		IP2PNode b = Environment.getBootstrapNode();
 		if(b.getID()==this.getID()){
 			Successor = this;
-			Predecessor = this;
 			for (int i = 0; i <= 31; i++){
 				this.fingertable[i] = this;
 			}
@@ -45,7 +44,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 				this.fingertable[i]=s;
 			}
 				
-			for (int i = i_zero; i <= 32; i++){
+			for (int i = i_zero; i <= 31; i++){
 				long nextID = this.getID() + (long) Math.pow(2, i-1);
 				this.fingertable[i] = s.findSuccessor(nextID);
 			}
@@ -107,18 +106,20 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	@Override
 	public void notify(IP2PNode newPredecessor) {
 		
-			if (this.getID() < this.Predecessor.getID()){
+		if (this.Predecessor!=null){
+		
+		if (this.getID() < this.Predecessor.getID()){
 				if ((newPredecessor.getID()>this.Predecessor.getID()) || (newPredecessor.getID()<this.getID())){
 					this.Predecessor = newPredecessor;
 				}
 			}
-			else if ((newPredecessor.getID()>this.Predecessor.getID()) && (newPredecessor.getID()<this.getID())){
-				this.Predecessor = newPredecessor;
-			}
-			else if (this.Predecessor==null){
-				this.Predecessor = newPredecessor;
-			}
-
+		else if ((newPredecessor.getID()>this.Predecessor.getID()) && (newPredecessor.getID()<this.getID())){
+			this.Predecessor = newPredecessor;
+		}
+	}
+		else if (this.Predecessor==null) {
+			this.Predecessor = newPredecessor;
+		}
 	}
 
 	@Override
@@ -153,20 +154,22 @@ public class P2PNode extends TimerTask implements IP2PNode {
 
 	private void fix_fingers() {
 		next += 1;
-		if (next > 32){next=1;}
+		if (next >= 32){next=1;}
 		
 		this.fingertable[next]=findSuccessor((long) (this.getID() + Math.pow(2, next-1)));
 	}
 
-	private void stabilze() {
+	private void stabilize() {
 	IP2PNode n = this.Successor.getPredecessor();
-	if (this.Successor.getID()<this.getID()){
-		if ((n.getID()<this.Successor.getID()) || (n.getID()>this.getID())){
+	if (n!=null){
+		if (this.Successor.getID()<this.getID()){
+			if ((n.getID()<this.Successor.getID()) || (n.getID()>this.getID())){
+				this.Successor = n;
+			}
+		}
+		else if ((n.getID()<this.Successor.getID()) && (n.getID()>this.getID())){
 			this.Successor = n;
 		}
-	}
-	else if ((n.getID()<this.Successor.getID()) && (n.getID()>this.getID())){
-		this.Successor = n;
 	}
 	this.Successor.notify(this);	
 	}
@@ -181,9 +184,8 @@ public class P2PNode extends TimerTask implements IP2PNode {
 			bootcomp=false;
 		}
 		else{
-			this.stabilze();
+			this.stabilize();
 			this.fix_fingers();
 		}
-		
 	}
 }
