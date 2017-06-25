@@ -27,25 +27,28 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		IP2PNode b = Environment.getBootstrapNode();
 		if(b.getID()==this.getID()){
 			Successor = this;
-			for (int i = 0; i <= 31; i++){
+			for (int i = 0; i < 32; i++){
 				this.fingertable[i] = this;
 			}
 		}
 		else if (b!=null){
 			IP2PNode s = b.findSuccessor(this.getID());
 			Successor = s;
-			build_fingers(s);
+			this.build_fingers(s);
 		}
 	}
 
 	private void build_fingers(IP2PNode s) {
 			int i_zero = (int) Math.floor((Math.log(this.Successor.getID()-this.getID())/Math.log(2))+1);
 			for (int i=0; i < i_zero; i++){
-				this.fingertable[i]=s;
+				this.fingertable[i]=s;	
 			}
 				
-			for (int i = i_zero; i <= 31; i++){
-				long nextID = this.getID() + (long) Math.pow(2, i-1);
+			for (int i = i_zero; i < 32; i++){
+				long nextID = this.getID() + (long) Math.pow(2, i+1);
+				if (nextID>4294967295L){
+					nextID -= 4294967295L;
+					}
 				this.fingertable[i] = s.findSuccessor(nextID);
 			}
 	}
@@ -83,7 +86,7 @@ public class P2PNode extends TimerTask implements IP2PNode {
 	}
 	
 	public IP2PNode closest_preceding_node(long id){
-		for(int i=32; i==1; i--){
+		for(int i=31; i==0; i--){
 			if (this.getID()<this.fingertable[i].getID() && id>this.fingertable[i].getID()){
 				return this.fingertable[i];
 			}
@@ -156,7 +159,12 @@ public class P2PNode extends TimerTask implements IP2PNode {
 		next += 1;
 		if (next >= 32){next=1;}
 		
-		this.fingertable[next]=findSuccessor((long) (this.getID() + Math.pow(2, next-1)));
+		long nextID = this.getID() + (long) Math.pow(2, next);
+		if (nextID>4294967295L){
+			nextID -= 4294967295L;
+			}
+		
+		this.fingertable[next-1]=this.findSuccessor(nextID);
 	}
 
 	private void stabilize() {
